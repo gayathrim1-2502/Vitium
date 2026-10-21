@@ -1,11 +1,19 @@
-FROM python:3.12-slim
+FROM node:24-slim
 
 WORKDIR /app
 
+COPY package.json package-lock.json ./
+COPY client/package.json ./client/package.json
+COPY server/package.json ./server/package.json
+
+RUN npm ci
+
 COPY . .
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN npm run build
+
+ENV NODE_ENV=production
 
 EXPOSE 10000
 
-CMD ["sh", "-c", "gunicorn app:app --bind 0.0.0.0:$PORT"]
+CMD ["npm", "run", "start", "-w", "server"]
